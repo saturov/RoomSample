@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import ru.rebrain.room.dao.BookDao
 import ru.rebrain.room.model.Book
 
-class WordRepository(
+class BooksRepository(
     private val bookDao: BookDao
 ) {
 
