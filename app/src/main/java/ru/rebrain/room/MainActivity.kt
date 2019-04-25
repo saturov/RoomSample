@@ -1,15 +1,18 @@
 package ru.rebrain.room
 
+import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ru.rebrain.room.model.Book
 import ru.rebrain.room.ui.adapter.BookListAdapter
 import ru.rebrain.room.vm.BooksViewModel
-import androidx.lifecycle.Observer
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,15 +28,10 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Get a new or existing ViewModel from the ViewModelProvider.
         booksViewModel = ViewModelProviders.of(this).get(BooksViewModel::class.java)
 
-        // Add an observer on the LiveData returned by getAlphabetizedWords.
-        // The onChanged() method fires when the observed data changes and the activity is
-        // in the foreground.
-        booksViewModel.allBooks.observe(this, Observer { words ->
-            // Update the cached copy of the words in the adapter.
-            words?.let { adapter.setBooks(it) }
+        booksViewModel.allBooks.observe(this, Observer { books ->
+            books?.let { adapter.setBooks(it) }
         })
 
         val btn = findViewById<Button>(R.id.add_btn)
@@ -41,6 +39,22 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this@MainActivity, NewBookActivity::class.java)
             startActivityForResult(intent, newBookActivityRequestCode)
         }
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intentData)
+
+        if (requestCode == newBookActivityRequestCode && resultCode == Activity.RESULT_OK) {
+            intentData?.let { data ->
+                val word = Book(data.getStringExtra(NewBookActivity.EXTRA_REPLY))
+                booksViewModel.insert(word)
+            }
+        } else {
+            Toast.makeText(
+                applicationContext,
+                R.string.empty_not_saved,
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 }
