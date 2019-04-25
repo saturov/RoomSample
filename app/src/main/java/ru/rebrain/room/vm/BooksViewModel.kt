@@ -23,8 +23,8 @@ class BooksViewModel(application: Application) : AndroidViewModel(application) {
     val allBooks: LiveData<List<Book>>
 
     init {
-        val wordsDao = BooksRoomDatabase.getDatabase(application).bookDao()
-        repository = BooksRepository(wordsDao)
+        val bookDao = BooksRoomDatabase.getDatabase(application).bookDao()
+        repository = BooksRepository(bookDao)
         allBooks = repository.allBooks
     }
 
